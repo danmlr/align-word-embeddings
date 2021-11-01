@@ -1,18 +1,26 @@
-import pandas as pd
-import gensim.downloader
 import numpy as np 
+import pandas as pd
 
-en_vectors = gensim.downloader.load('word2vec-google-news-300')
-ru_vectors = gensim.downloader.load('word2vec-ruscorpora-300')
+import gensim.downloader
+from gensim.models import KeyedVectors
 
-df =pd.read_csv('ru_en_dict.csv', dtype = str)
+l1 = 'fr'
+l2 = 'en'
+
+# l1_vectors = gensim.downloader.load('word2vec-google-news-300')
+# l2_vectors = gensim.downloader.load('word2vec-ruscorpora-300')
+
+l1_vectors = KeyedVectors.load_word2vec_format('../embeddings/cc.' + l1 + '.300.f50k.vec', binary=False)
+l2_vectors = KeyedVectors.load_word2vec_format('../embeddings/cc.' + l2 + '.300.f50k.vec', binary=False)
+
+df =pd.read_csv('dict/' + l1 + '_' + l2 + '_dict.csv', dtype = str)
 arr = df.to_numpy()
 
 
 def rot(seed):
 	
-	X = np.array([ru_vectors.word_vec(x) for x in seed[:,0]]).T 
-	Z = np.array([en_vectors.word_vec(x) for x in seed[:,1]]).T
+	X = np.array([l1_vectors.word_vec(x) for x in seed[:,0]]).T 
+	Z = np.array([l2_vectors.word_vec(x) for x in seed[:,1]]).T
 
 	#On cherche à minimiser la norme de WX-Z, SVD de XZ^T = U S V^T donne W = VU^T 
 	u,_,vh = np.linalg.svd(X@Z.T)
@@ -38,17 +46,17 @@ def eval(testSet,W):
 	    Output : percentage of success P@10 
 	"""
 	success = 0
-	for ru_word,en_word in testSet: 
-		x = ru_vectors.word_vec(ru_word)
-		translates = en_vectors.similar_by_vector(W@x)
+	for l1_word,l2_word in testSet: 
+		x = l1_vectors.word_vec(l1_word)
+		translates = l2_vectors.similar_by_vector(W@x)
 		for transword,_ in translates:
-			if transword==en_word:
+			if transword==l2_word:
 				success+=1 
 				break 
 	return 100*success/len(testSet)  
 
 Nrepet = 10
-Nseeds = [4000,5000,6000,7000,8000,8300] 
+Nseeds = [100, 200, 300, 500, 1000, 2000, 3000] 
 
 P11 = np.zeros((len(Nseeds),2*Nrepet))
 P12 = np.zeros((len(Nseeds),2*Nrepet))
@@ -99,10 +107,10 @@ print('\n\nNormL2')
 print(NormL2)  
 
 
-np.savetxt("P11.csv", P11, delimiter=",")
-np.savetxt("P12.csv", P12, delimiter=",")
+np.savetxt("res/P11.csv", P11, delimiter=",")
+np.savetxt("res/P12.csv", P12, delimiter=",")
 
-np.savetxt("MeanAngle.csv", MeanAngle, delimiter=",")
-np.savetxt("NormL2.csv", NormL2, delimiter=",")
+np.savetxt("res/MeanAngle.csv", MeanAngle, delimiter=",")
+np.savetxt("res/NormL2.csv", NormL2, delimiter=",")
 
-np.savetxt('Nseeds.csv',Nseeds,delimiter=",") 
+np.savetxt('res/Nseeds.csv',Nseeds,delimiter=",") 
