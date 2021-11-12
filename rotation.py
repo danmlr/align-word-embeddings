@@ -53,7 +53,7 @@ def eval(testSet,W):
 			if transword==l2_word:
 				success+=1 
 				break 
-	return 100*success/len(testSet)  
+	return 100*success/len(testSet)
 
 Nrepet = 10
 Nseeds = [100, 200, 300, 500, 1000, 2000, 3000] 
