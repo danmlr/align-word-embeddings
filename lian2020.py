@@ -20,31 +20,40 @@ NY = 10000
 d = 300
 Niter = 10
 
-embeddings = []
-X = np.zeros((m, N, d))
-C = np.zeros((m, N0, N0))
-Pi = np.zeros((m, N0, N0))
-Q = np.zeros((m, d, d))
-Q[0] = np.eye(d)
-WX = np.ones((m, N)) / N
+def gromov_wasserstein(epsilon):
+    embeddings = []
+    X = np.zeros((m, N, d))
+    C = np.zeros((m, N0, N0))
+    Pi = np.zeros((m, N0, N0))
+    Q = np.zeros((m, d, d))
+    Q[0] = np.eye(d)	
+    WX = np.ones((m, N)) / N
 
-for i, l in tqdm(enumerate(languages)):
-    embeddings.append(KeyedVectors.load_word2vec_format('../embeddings/cc.' + l + '.300.f10k.vec', binary=False))
-    X[i] = embeddings[i].vectors
-    C[i] = cosine_similarity(X[i, :N0], X[i, :N0])
-    if i > 0:
-        Pi[i] = N0 * entropic_gromov_wasserstein(C[i], C[0], np.ones(N0) / N0, np.ones(N0) / N0, 'square_loss', epsilon=1e-3)
-        u, _, vh = np.linalg.svd(X[i, :N0].T @ Pi[i] @ X[0, :N0])
-        Q[i] = u @ vh
-        X[i] = X[i] @ Q[i]
+    for i, l in tqdm(enumerate(languages)):
+        embeddings.append(KeyedVectors.load_word2vec_format('../embeddings/cc.' + l + '.300.f10k.vec', binary=False))
+        X[i] = embeddings[i].vectors
+        C[i] = cosine_similarity(X[i, :N0], X[i, :N0])
+        if i > 0:
+            Pi[i],log = N0 * entropic_gromov_wasserstein(C[i], C[0], np.ones(N0) / N0, np.ones(N0) / N0, 'square_loss', epsilon=epsilon,log=True)
+            u, _, vh = np.linalg.svd(X[i, :N0].T @ Pi[i] @ X[0, :N0])
+            Q[i] = u @ vh
+            X[i] = X[i] @ Q[i]
 
-l1 = 'fr'
-l2 = 'en'
+    l1 = 'fr'
+    l2 = 'en'
 
-l1_l2_dict = pd.read_csv('dict/' + l1 + '_' + l2 + '_dict.csv', dtype = str).to_numpy()
+    l1_l2_dict = pd.read_csv('dict/' + l1 + '_' + l2 + '_dict.csv', dtype = str).to_numpy()
 
-print(eval_perm(embeddings[0], embeddings[1], l1_l2_dict[:N0], Pi[1].T)) # devrait être correct
-print(eval_perm(embeddings[0], embeddings[1], l1_l2_dict[:N0], Pi[1]))
+    permP10 = eval_perm(embeddings[0], embeddings[1], l1_l2_dict, Pi[1].T)
+    rotP10 = eval_rot(embeddings[0], embeddings[1], l1_l2_dict, Q[1])
+    np.savez_compressed('gromovWassertein_epsilon'+str(epsilon),epsilon=epsilon,permP10=permP10,rotP10=rotP10, Q=Q[1], Pi = Pi[1],log=log)
+
+for epsilon in [2e-3,5e-4,1e-3]:
+	gromov_wasserstein(epsilon)	
+
+
+
+
 
 # Y = X[0]
 # WY = np.ones(NY) / NY
