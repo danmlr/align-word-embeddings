@@ -13,6 +13,10 @@ from tqdm import tqdm
 from eval import *
 import os 
 
+epsilon=1e-3
+
+
+
 languages = ['fr', 'en']
 m = len(languages)
 N = 10000
@@ -33,4 +37,12 @@ l2 = 'en'
 l1_l2_dict = pd.read_csv('dict/' + l1 + '_' + l2 + '_dict.csv', dtype = str).to_numpy()
 
 
-    
+
+
+
+Pi=np.load('gromovWassertein_epsilon'+str(epsilon)+'.npz')['Pi']
+Pi3,Pi4=evalP10(embeddings[0],embeddings[1],l1_l2_dict,Pi)
+
+
+print('Exemple : ','evalP10(embeddings[0],embeddings[1],l1_l2_dict,Pi)')
+print('evalOptim(C[1],C[0],Pi)')     

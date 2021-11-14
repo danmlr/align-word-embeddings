@@ -1,5 +1,7 @@
 import numpy as np
 from tqdm import tqdm 
+from ot.gromov import gwggrad
+from ot.gromov import sinkhorn
 
 def eval_rot(l1, l2, l1_l2_dict, W):
     """ As input we use a list of translation pairs (same format as seed) and a rotation matrix W 
@@ -42,19 +44,51 @@ def eval_perm(l1, l2, l1_l2_dict, P):
 
 
 
+
+def sinkhorn(A):
+    """ Returns a bistochastic matrix obtanied by sclaing A appropriately,
+based on THE SINKHORN-KNOPP ALGORITHM: CONVERGENCE AND APPLICATIONS """
+    N = A.shape[0]
+    r = np.ones(N)
+    c = np.ones(N)
+    R = np.diag(r)@A@np.diag(c)
+    Rr = R.sum(axis=1)
+    Rc = R.sum(axis=0)
+    while Rr.max()-Rr.min()>0.0001 or Rc.max()-Rc.min()>0.0001:
+        c = 1/(A.T@r)
+        r = 1/(A@c)
+        R = np.diag(r)@A@np.diag(c)
+        Rr = R.sum(axis=1)
+        Rc = R.sum(axis=0)
+    return R
+
+
 def evalP10(l1, l2, l1_l2_dict, Pi):
 	""" Evalue différentes P@10 pour une permutation de supervision donnée """
 	print('P@10 Permutation : ',eval_perm(l1, l2, l1_l2_dict, Pi.T))
 	u,_,vh = np.linalg.svd(Pi) 
 	Pi2 = u@vh
 	print('P@10 Permutation après projection sur orthogonales: ',eval_perm(l1, l2, l1_l2_dict, Pi2.T))
+	Pi3 = np.abs(Pi2)
+	print('P@10 Permutation après projection sur orthogonales et np.abs: ',eval_perm(l1, l2, l1_l2_dict, Pi3.T))
+	Pi4=sinkhorn(Pi3)
+	print('P@10 Permutation après projection sur orthogonales et np.abs: ',eval_perm(l1, l2, l1_l2_dict, Pi4.T))
 	N0 = Pi.shape[0]
+
 	u, _, vh = np.linalg.svd(l2.vectors[:N0].T @ Pi @ l1.vectors[:N0])
 	Q = u@vh 
 	print('P@10 Rotation : ',eval_rot(l1, l2, l1_l2_dict, Q))
 	u, _, vh = np.linalg.svd(l2.vectors[:N0].T @ Pi2 @ l1.vectors[:N0])
 	Q2 = u@vh
 	print('P@10 Rotation après projection : ',eval_rot(l1, l2, l1_l2_dict, Q2))
+	u, _, vh = np.linalg.svd(l2.vectors[:N0].T @ Pi3 @ l1.vectors[:N0])
+	Q3 = u@vh
+	print('P@10 Rotation après projection et np.abs : ',eval_rot(l1, l2, l1_l2_dict, Q3))
+	u, _, vh = np.linalg.svd(l2.vectors[:N0].T @ Pi4 @ l1.vectors[:N0])
+	Q4 = u@vh
+	print('P@10 Rotation après projection, np.abs et sinkhorn : ',eval_rot(l1, l2, l1_l2_dict, Q4))
+	
+	return Pi3,Pi4
 
 
 
@@ -81,7 +115,8 @@ def evalOptim(C1,C2,T):
 
 
 
-def projBistoch(C1,C2,Pi):
+
+def projBistoch(C1,C2,Pi,epsilon):
 	N1 = C1.shape[0]
 	N2 = C2.shape[0]
 	p = np.ones((N1,1))
@@ -91,6 +126,6 @@ def projBistoch(C1,C2,Pi):
 	constC=A+B
 	hC1 = C1
 	hC2 = 2*C2
-	tens = gwggrad(constC, hC1, hC2, T)
+	tens = gwggrad(constC, hC1, hC2, Pi)
 	T = sinkhorn(p, q, tens, epsilon, method='sinkhorn')
 	return T
