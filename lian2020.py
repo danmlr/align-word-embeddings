@@ -11,6 +11,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from eval import eval_perm
+from eval import eval_rot
+from time import time
 
 languages = ['fr', 'en']
 m = len(languages)
@@ -20,7 +22,7 @@ NY = 10000
 d = 300
 Niter = 10
 
-def gromov_wasserstein(epsilon):
+def gromov_wasserstein(epsilon,N0):
     embeddings = []
     X = np.zeros((m, N, d))
     C = np.zeros((m, N0, N0))
@@ -34,7 +36,9 @@ def gromov_wasserstein(epsilon):
         X[i] = embeddings[i].vectors
         C[i] = cosine_similarity(X[i, :N0], X[i, :N0])
         if i > 0:
-            Pi[i],log = N0 * entropic_gromov_wasserstein(C[i], C[0], np.ones(N0) / N0, np.ones(N0) / N0, 'square_loss', epsilon=epsilon,log=True)
+            t0 = time()
+            Pi[i]= N0 * entropic_gromov_wasserstein(C[i], C[0],np.ones(N0) / N0 , np.ones(N0) / N0, 'square_loss', epsilon=epsilon,verbose=True)
+            dT = time()-t0
             u, _, vh = np.linalg.svd(X[i, :N0].T @ Pi[i] @ X[0, :N0])
             Q[i] = u @ vh
             X[i] = X[i] @ Q[i]
@@ -46,10 +50,10 @@ def gromov_wasserstein(epsilon):
 
     permP10 = eval_perm(embeddings[0], embeddings[1], l1_l2_dict, Pi[1].T)
     rotP10 = eval_rot(embeddings[0], embeddings[1], l1_l2_dict, Q[1])
-    np.savez_compressed('gromovWassertein_epsilon'+str(epsilon),epsilon=epsilon,permP10=permP10,rotP10=rotP10, Q=Q[1], Pi = Pi[1],log=log)
+    np.savez_compressed('gromovWassertein_epsilon'+str(epsilon)+'_N0'+str(N0)+'_zipf',dT=dT,epsilon=epsilon,N0=N0,permP10=permP10,rotP10=rotP10, Q=Q[1], Pi = Pi[1])
 
-for epsilon in [2e-3,5e-4,1e-3]:
-	gromov_wasserstein(epsilon)	
+for epsilon,N0 in [(2e-3,5000),(1e-3,5000),(5e-4,5000)]:
+	gromov_wasserstein(epsilon,N0)	
 
 
 

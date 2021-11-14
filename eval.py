@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm 
 
 def eval_rot(l1, l2, l1_l2_dict, W):
     """ As input we use a list of translation pairs (same format as seed) and a rotation matrix W 
@@ -38,3 +39,58 @@ def eval_perm(l1, l2, l1_l2_dict, P):
                 break
 
     return 100 * success / nb_tested_words
+
+
+
+def evalP10(l1, l2, l1_l2_dict, Pi):
+	""" Evalue différentes P@10 pour une permutation de supervision donnée """
+	print('P@10 Permutation : ',eval_perm(l1, l2, l1_l2_dict, Pi.T))
+	u,_,vh = np.linalg.svd(Pi) 
+	Pi2 = u@vh
+	print('P@10 Permutation après projection sur orthogonales: ',eval_perm(l1, l2, l1_l2_dict, Pi2.T))
+	N0 = Pi.shape[0]
+	u, _, vh = np.linalg.svd(l2.vectors[:N0].T @ Pi @ l1.vectors[:N0])
+	Q = u@vh 
+	print('P@10 Rotation : ',eval_rot(l1, l2, l1_l2_dict, Q))
+	u, _, vh = np.linalg.svd(l2.vectors[:N0].T @ Pi2 @ l1.vectors[:N0])
+	Q2 = u@vh
+	print('P@10 Rotation après projection : ',eval_rot(l1, l2, l1_l2_dict, Q2))
+
+
+
+def entropy(M):
+	return -np.sum(M*np.log(M))
+
+def OTGW(C1,C2,Pi):
+	""" Assuming square loss and bistochastic constraints  """
+	N1 = C1.shape[0]
+	N2 = C2.shape[0] 
+	p = np.ones((N1,1))
+	q = np.ones((N2,1))
+	A = C1**2@p@np.ones((N2,1)).T
+	B = np.ones((N1,1))@q.T@(C2**2).T
+	C = - 2*C1@Pi@C2.T
+	LxT = A+B+C
+	return np.trace(LxT@Pi.T)
+
+
+
+def evalOptim(C1,C2,T):
+	print('OT GW loss : ',OTGW(C1,C2,T))
+	print('Entropy : ',entropy(T)) 
+
+
+
+def projBistoch(C1,C2,Pi):
+	N1 = C1.shape[0]
+	N2 = C2.shape[0]
+	p = np.ones((N1,1))
+	q = np.ones((N2,1))
+	A = C1**2@p@np.ones((N2,1)).T
+	B = np.ones((N1,1))@q.T@(C2**2).T
+	constC=A+B
+	hC1 = C1
+	hC2 = 2*C2
+	tens = gwggrad(constC, hC1, hC2, T)
+	T = sinkhorn(p, q, tens, epsilon, method='sinkhorn')
+	return T
