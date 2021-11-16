@@ -54,7 +54,7 @@ based on THE SINKHORN-KNOPP ALGORITHM: CONVERGENCE AND APPLICATIONS """
     R = np.diag(r)@A@np.diag(c)
     Rr = R.sum(axis=1)
     Rc = R.sum(axis=0)
-    while Rr.max()-Rr.min()>0.0001 or Rc.max()-Rc.min()>0.0001:
+    while Rr.max()-Rr.min()>0.01 or Rc.max()-Rc.min()>0.01:
         c = 1/(A.T@r)
         r = 1/(A@c)
         R = np.diag(r)@A@np.diag(c)

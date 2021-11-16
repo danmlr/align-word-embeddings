@@ -13,7 +13,7 @@ from tqdm import tqdm
 from eval import *
 import os 
 
-epsilon=1e-3
+epsilon=5e-4
 
 
 

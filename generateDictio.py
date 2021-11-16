@@ -7,8 +7,8 @@ from gensim.models import KeyedVectors
 from deep_translator import GoogleTranslator
 from deep_translator.exceptions import NotValidPayload
 
-l1 = 'fr'
-l2 = 'en'
+l1 = 'en'
+l2 = 'es'
 
 l1_vectors = KeyedVectors.load_word2vec_format('../embeddings/cc.' + l1 + '.300.f10k.vec', binary=False)
 l2_vectors = KeyedVectors.load_word2vec_format('../embeddings/cc.' + l2 + '.300.f10k.vec', binary=False)
