@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from time import time
 
-languages = ['fr', 'de']
+languages = ['fr', 'es']
 m = len(languages)
 N = 10000
 N0 = 5000

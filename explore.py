@@ -40,8 +40,8 @@ l1_l2_dict = pd.read_csv('dict/' + l1 + '_' + l2 + '_dict.csv', dtype = str).to_
 
 
 
-Pi=np.load('gromovWassertein_epsilon'+str(epsilon)+'.npz')['Pi']
-Pi3,Pi4=evalP10(embeddings[0],embeddings[1],l1_l2_dict,Pi)
+# Pi=np.load('gromovWassertein_epsilon'+str(epsilon)+'.npz')['Pi']
+# Pi3,Pi4=evalP10(embeddings[0],embeddings[1],l1_l2_dict,Pi)
 
 
 print('Exemple : ','evalP10(embeddings[0],embeddings[1],l1_l2_dict,Pi)')

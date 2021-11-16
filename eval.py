@@ -43,6 +43,33 @@ def eval_perm(l1, l2, l1_l2_dict, P):
     return 100 * success / nb_tested_words
 
 
+def correct_words_perm(l1, l2, l1_l2_dict, P):
+    """
+	P[i, j] donne la probabilité que le mot i de l1 soit traduit par le mot j de l2.
+	Retourne les mots de l2 traduit correctement/incorrectement par P.
+	"""
+
+    correct = set()
+    incorrect = set()
+
+    for l1_word, l2_word in l1_l2_dict:
+
+        i = l1.vocab[l1_word].index
+        
+        if i >= P.shape[0]:
+            break
+
+        indices = np.argsort(P[i])[-10:]
+        translates = [l2.index2word[j] for j in indices]
+
+        for j, transword in enumerate(translates):
+            if transword == l2_word:
+                correct.add(l2_word)
+                break
+            elif j == len(translates) - 1:
+                incorrect.add(l2_word)
+
+    return correct, incorrect
 
 
 def sinkhorn(A):
