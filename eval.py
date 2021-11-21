@@ -96,7 +96,7 @@ def evalP10(l1, l2, l1_l2_dict, Pi):
 	u,_,vh = np.linalg.svd(Pi) 
 	Pi2 = u@vh
 	print('P@10 Permutation après projection sur orthogonales: ',eval_perm(l1, l2, l1_l2_dict, Pi2.T))
-	Pi3 = np.abs(Pi2)
+	Pi3 = (np.abs(Pi2)+Pi2)/2
 	print('P@10 Permutation après projection sur orthogonales et np.abs: ',eval_perm(l1, l2, l1_l2_dict, Pi3.T))
 	Pi4=sinkhorn(Pi3)
 	print('P@10 Permutation après projection sur orthogonales et np.abs: ',eval_perm(l1, l2, l1_l2_dict, Pi4.T))

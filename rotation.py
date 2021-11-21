@@ -23,8 +23,11 @@ def rot(seed):
 	Z = np.array([l2_vectors.word_vec(x) for x in seed[:,1]]).T
 
 	#On cherche à minimiser la norme de WX-Z, SVD de XZ^T = U S V^T donne W = VU^T 
-	u,_,vh = np.linalg.svd(X@Z.T)
-
+	u,D,vh = np.linalg.svd(X@Z.T)
+	print('Number of singular values : ',len(D))
+	print('Number of zeros in singular value : ', np.sum(D<=0.00001))
+	print('Number of consecutive equalities between singular values : ')
+	print(np.sum(np.abs(D-np.roll(D,shift=1))<=0.0001))
 	return vh.T@u.T 
 
 
@@ -55,8 +58,8 @@ def eval(testSet,W):
 				break 
 	return 100*success/len(testSet)
 
-Nrepet = 10
-Nseeds = [100, 200, 300, 500, 1000, 2000, 3000] 
+Nrepet = 2
+Nseeds = [200, 300, 301, 302, 310, 320,350] 
 
 P11 = np.zeros((len(Nseeds),2*Nrepet))
 P12 = np.zeros((len(Nseeds),2*Nrepet))
@@ -107,10 +110,10 @@ print('\n\nNormL2')
 print(NormL2)  
 
 
-np.savetxt("res/P11.csv", P11, delimiter=",")
-np.savetxt("res/P12.csv", P12, delimiter=",")
+#np.savetxt("res/P11.csv", P11, delimiter=",")
+#np.savetxt("res/P12.csv", P12, delimiter=",")
 
-np.savetxt("res/MeanAngle.csv", MeanAngle, delimiter=",")
-np.savetxt("res/NormL2.csv", NormL2, delimiter=",")
+#np.savetxt("res/MeanAngle.csv", MeanAngle, delimiter=",")
+#np.savetxt("res/NormL2.csv", NormL2, delimiter=",")
 
-np.savetxt('res/Nseeds.csv',Nseeds,delimiter=",") 
+#np.savetxt('res/Nseeds.csv',Nseeds,delimiter=",") 
