@@ -1,3 +1,9 @@
+""" 
+This file contains some code that computes the solution to the Procrustes problem for a given seed. 
+It also allows to compute the dissimilarity between two isometry using a rotation reduction. 
+We include an expriment section which can be used to analyze the variability of the solution to the Procrustes problem when changing the seed. 
+""" 
+
 import numpy as np 
 import pandas as pd
 
@@ -18,7 +24,15 @@ arr = df.to_numpy()
 
 
 def rot(seed):
+	"""
+	Determines the best isometry matrix that aligns the embeddings of the word translations provided in seed 
 	
+	Input : 
+		seed : an array that contains pairs of words that are translations of each other. Typically a subset of a supervision bilingual dictionnary. 
+		
+	Output : 
+		Isometry matrix that maps the first language space to that of the second language. 
+	"""
 	X = np.array([l1_vectors.word_vec(x) for x in seed[:,0]]).T 
 	Z = np.array([l2_vectors.word_vec(x) for x in seed[:,1]]).T
 
@@ -32,8 +46,9 @@ def rot(seed):
 
 
 def rotSim(W1,W2):
-	""" Returns the rotation similarity between two learned matrices. The first value is averaged rotation angle 
-	    in absolute value (in degrees). The second value is the L2 norm of the angle vector (radians) 
+	""" Returns the rotation dissimilarity between two isometry matrices W1 and W2 using a rotation reduction of W1.T@W2 
+	The first value is the average rotation angle in absolute value (in degrees). 
+	The second value is the L2 norm of the angle vector (radians) 
 	""" 
 
 	#Compute the angle distance between the two matrices 
@@ -42,11 +57,11 @@ def rotSim(W1,W2):
 	angles.sort()
 	return np.mean(np.abs(angles)), np.linalg.norm(np.pi/180*angles)
 
-# Assess translation performances ru->en 
-print('Training set') 
+
+
 def eval(testSet,W):
-	""" As input we use a list of translation pairs (same format as seed) and a rotation matrix W 
-	    Output : percentage of success P@10 
+	""" Input : List of translation pairs (same format as seed) and a rotation matrix W 
+		Output : percentage of success P@10 
 	"""
 	success = 0
 	for l1_word,l2_word in testSet: 
@@ -58,7 +73,11 @@ def eval(testSet,W):
 				break 
 	return 100*success/len(testSet)
 
-Nrepet = 2
+
+
+## Experiment - Variability of the optimal isometry when changing the seed 
+
+Nrepet = 10
 Nseeds = [200, 300, 301, 302, 310, 320,350] 
 
 P11 = np.zeros((len(Nseeds),2*Nrepet))
@@ -97,8 +116,6 @@ for i,Nseed in enumerate(Nseeds):
 		NormL2[i,j] = normL2
 
 
-import sys
-np.set_printoptions(threshold=sys.maxsize)
 print('\n\nP11')
 print(P11)
 print('\n\nP12')

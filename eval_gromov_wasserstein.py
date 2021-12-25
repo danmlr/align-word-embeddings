@@ -9,20 +9,28 @@ from tqdm import tqdm
 
 from time import time
 
-languages = ['fr', 'es']
-m = len(languages)
-N = 10000
-N0 = 5000
-d = 300
-Niter = 10
 
-def gromov_wasserstein(epsilon, N0):
 
+def gromov_wasserstein(epsilon, N0=2000,languages = ['fr', 'en' ,'es'], N=10000):
+    """
+    This function uses the Gromov Wasserstein minimization problem to compute attribution matrices between words in different languages. Isometries that map spaces between different languages are also computed Results are saved in a file named 'gromovWassertein...'
+    
+    Input : 
+        epsilon : Regularization parameter for the optimization 
+        N0 : Number of words used by the Gromov Waserstein computation. The first N0 in X are selected 
+        languages :  The first language is used as the pivot 
+        N : Number of words in the embeddings. 
+        
+    """ 
+    
+    m = len(languages)
+    d = 300 # Dimension of the embedding space 
+    
     embeddings = []
-    X = np.zeros((m, N, d))
-    C = np.zeros((m, N0, N0))
+    X = np.zeros((m, N, d)) # X[l][i] will contain the raw embedding of the i-th word in language l 
+    C = np.zeros((m, N0, N0)) 
     Pi = np.zeros((m, N0, N0))
-    Q = np.zeros((m, d, d))
+    Q = np.zeros((m, d, d)) #Q[l] contains the isometry matrix that maps the space of language 0 into that of language l 
     Q[0] = np.eye(d)
 
     for i, l in tqdm(enumerate(languages)):
@@ -48,5 +56,8 @@ def gromov_wasserstein(epsilon, N0):
             np.savez_compressed(fname, dT=dT, epsilon=epsilon, N0=N0, Q=Q[i], Pi=Pi[i])
 
 
+
+## Experiment - Compute Gromov Wasserstein attribution matrices for different values of N0 and epsilon
+
 for epsilon, N0 in [(2e-3,5000), (1e-3,5000), (5e-4,5000), (2e-4,5000)]:
-	gromov_wasserstein(epsilon, N0)
+    gromov_wasserstein(epsilon, N0)
