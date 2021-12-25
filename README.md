@@ -1,6 +1,6 @@
 # Multilingual alignment of word embeddings 
 
-Authors : Gonzague de Carpentier - Dan Meller 
+Authors : Gonzague de Carpentier - Dan Meller  
 This code was written during a research project in Natural Language Processing at Ecole Polytechnique.  
 We wish to thank François Yvon (Limsi/CNRS) for his supervision.  
 
