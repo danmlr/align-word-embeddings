@@ -36,4 +36,18 @@ We include an expriment section which can be used to analyze the variability of 
 This files provides functions that evaluate the quality of word embeddings alignments using bilingual word translations. 
 
 
+##  eval_gromov_wasserstein.py
+This file contains code to compute Gromov Wasserstein alignment between word embedding spaces in multiple languages. 
+
+## explore.py 
+
+This code should be used to load the objects required to explore the result of other computations. 
+``python -i explore.py``
+
+## generate_dictio.py 
+
+This code generates bilingual dictionnaries between the languages l1 and l2 by using Google Translate. 
+The word embeddings are required in both languages in order to make sure that every entry in the dictionnary can be found by the method word_vec. 
+This code attempts to translate the first 10k words given by the l1-embedding. Because some translations will fail, you should expect the dictionnary to have strictly less than 10k items. 
+
 
