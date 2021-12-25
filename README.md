@@ -1,9 +1,10 @@
 # Multilingual alignment of word embeddings 
-Enseignement d'approfondissement en NLP
 
-dict/ : Dictionnaires de traduction 
+Author : Gonzague de Carpentier - Dan Meller 
+This code was written during a research project in Natural Language Processing at Ecole Polytechnique. 
+We wish to thank François Yvon (Limsi/CNRS) for his supervision. 
 
-res/ : Résultats de rotation.py
+
 
 ## How to add word embeddings 
 Word embeddings in text format need to be placed in a directory named *embeddings* located **outside** of this git repository. 
