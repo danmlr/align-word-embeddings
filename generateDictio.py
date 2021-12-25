@@ -1,3 +1,9 @@
+"""
+This code generates bilingual dictionnaries between the languages l1 and l2 by using Google Translate. 
+The word embeddings are required in both languages in order to make sure that every entry in the dictionnary can be found by the method word_vec. 
+This code attempts to translate the first 10k words given by the l1-embedding. Because some translations will fail, you should expect the dictionnary to have strictly less than 10k items. 
+"""
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm

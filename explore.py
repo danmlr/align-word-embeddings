@@ -1,3 +1,8 @@
+"""This code should be used to load the objects required to explore the result of other computations. 
+python -i explore.py
+""" 
+
+
 import numpy as np
 import pandas as pd
 
@@ -12,6 +17,9 @@ from tqdm import tqdm
 
 from eval import *
 import os 
+
+
+
 
 epsilon=5e-4
 
