@@ -1,5 +1,5 @@
 """
-This files provides functions that evaluate the quality of bilingual translations 
+This files provides functions that evaluate the quality of word embeddings alignments using bilingual word translations. 
 """
 
 import numpy as np

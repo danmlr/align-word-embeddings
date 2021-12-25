@@ -1,3 +1,8 @@
+""" 
+This file contains code to compute Gromov Wasserstein alignment between word embedding spaces in multiple languages. 
+""" 
+
+
 import numpy as np
 
 from gensim.models import KeyedVectors
@@ -8,6 +13,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 
 from time import time
+
+
 
 
 
