@@ -2,6 +2,8 @@
 
 Authors : Gonzague de Carpentier - Dan Meller  
 This code was written during a research project in Natural Language Processing at Ecole Polytechnique.  
+The full report can be accessed here : 
+http://dx.doi.org/10.13140/RG.2.2.21701.37609    
 We wish to thank François Yvon (Limsi/CNRS) for his supervision.  
 
 
