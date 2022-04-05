@@ -34,7 +34,7 @@ def entropic_gromov_wasserstein_corrected(C1, C2, p, q, loss_fun, epsilon,
     T = nx.outer(p, q)
 
     constC, hC1, hC2 = init_matrix(C1, C2, p, q, loss_fun)
-    constC2, hC1, hC2 = init_matrix(C1.T, C2.T, p, q, loss_fun)
+    constC2, _, _ = init_matrix(C1.T, C2.T, p, q, loss_fun)
 
     cpt = 0
     err = 1
@@ -48,7 +48,7 @@ def entropic_gromov_wasserstein_corrected(C1, C2, p, q, loss_fun, epsilon,
 
         # compute the gradient 
         #----------------------->Modif here 
-        tens = gwggrad_corrected(constC, hC1, hC2, T,constC2)
+        tens = gwggrad(constC, hC1, hC2, T)+gwggrad(constC2, hC1.T, hC2.T, T)
 
         T = sinkhorn(p, q, tens, epsilon, method='sinkhorn')
 
@@ -116,12 +116,9 @@ def gwggrad_corrected(constC, hC1, hC2, T,constC2):
         nx.dot(hC1, T), hC2.T
     )
     tens = constC + A
-    # -------> Modif here 
-    B = - nx.dot(
-        nx.dot(hC1.T, T), hC2
-    )
+   
     
-    return  tens+constC2+B #[12] Prop. 2 misses more than a 2 factor 
+    return  tens #[12] Prop. 2 misses more than a 2 factor 
 
 
     
